@@ -40,11 +40,14 @@
 		</div>
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
+		<script src="js/car.js"></script>
 		<script>
 			var scene;
 			var camera;
 			var renderer;
 			var car;
+			var go = false;
+			var back = false;
 
 			// Create the scene and set the scene size.
 			function init() {
@@ -73,33 +76,52 @@
 					camera.updateProjectionMatrix();
 				})
 
+				document.addEventListener("keydown", onKeyDown, false);
+				document.addEventListener("keyup", onKeyUp, false);
+
 				// Add OrbitControls so that we can pan around with the mouse.
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 			}
 
+			function onKeyDown(a) {
+				var b = a.keyCode;
+
+				if (car.moving)
+					return;
+
+				if (b == 38) {
+					car.direction = Car.FORWARD;
+					car.moving = true; //go = true;
+				} else if (b == 40) {
+					car.direction = Car.BACKWARD;
+					car.moving = true; //back = true;
+				}
+			}
+
+			function onKeyUp(a) {
+				a = a.keyCode;
+				if (a == 38 || a == 40)
+					car.moving = false;
+			}
+
 			function makeCar() {
-				car = new THREE.Mesh();
-				var loader = new THREE.JSONLoader();
-				loader.load("cars/charger/charger.js", function(geometry) {
-					var material = new THREE.MeshPhongMaterial({
-						map: THREE.ImageUtils.loadTexture("cars/charger/charger.png"),
-						shading: THREE.SmoothShading,
-						transparent: true
-						});
-					car = new THREE.Mesh(geometry, material);
-					car.scale.x = car.scale.y = car.scale.z = 1;
-					car.rotation.x = 0.1;
-					scene.add(car);
-				});
+				car = new Car();
+				car.initialize("charger", 14);
+				car.addToScene(scene);
 			}
 
 			function makeLights() {
+				var ambientLight = new THREE.AmbientLight(0x404040);
+				scene.add(ambientLight);
+
 				var light1 = new THREE.PointLight(0xffffff, 1, 500);
 	            light1.position.set(5, 5, 5);
+	            light1.castShadow = true;
 	            scene.add(light1);
 	            
 	            var light2 = new THREE.PointLight(0xffffff, 1, 500);
 	            light2.position.set(-5, 0, -5);
+	            light2.castShadow = true;
 	            scene.add(light2);
 			}
 
@@ -107,7 +129,7 @@
 				// Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
 				requestAnimationFrame(render);
 
-				//car.rotation.y += 0.01;
+				car.update();
 
 				// Render the scene.
 				renderer.render(scene, camera);

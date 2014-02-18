@@ -26,7 +26,7 @@
 		"colorSpecular" : [0.0, 0.0, 0.0],
 		"depthTest" : true,
 		"depthWrite" : true,
-		"mapDiffuse" : "auto_test.png",
+		"mapDiffuse" : "charger.png",
 		"mapDiffuseWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 50,
